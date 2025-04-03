@@ -1,3 +1,33 @@
+// app/page.tsx
+'use client';
+
+import { useEffect } from 'react';
+import { useAppDispatch } from '@/app/hooks';
+import { fetchWeather } from '@/services/weather';
+import { fetchCryptoData } from '@/services/crypto';
+import { setupWebSocket } from '@/lib/websocket';
+
+export default function Home() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    // Initialize WebSocket
+    const ws = setupWebSocket();
+    
+    // Fetch initial data
+    ['new york', 'london', 'tokyo'].forEach((city) => {
+      dispatch(fetchWeather(city));
+    });
+    
+    ['bitcoin', 'ethereum', 'dogecoin'].forEach((id) => {
+      dispatch(fetchCryptoData(id));
+    });
+
+    return () => ws.close();
+  }, [dispatch]);
+
+  // ... rest of your component
+}
 import Image from "next/image";
 
 export default function Home() {
