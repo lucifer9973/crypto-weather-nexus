@@ -52,6 +52,16 @@ export interface City {
   lon: number;
 }
 
+interface ForecastListItem {
+  dt: number;
+  main: { temp: number; pressure: number; humidity: number; };
+  weather: { id: number; main: string; description: string; icon: string; }[];
+  clouds: { all: number };
+  wind: { speed: number; deg: number; gust?: number };
+  sys: { sunrise: number; sunset: number };
+  visibility: number;
+}
+
 export const openWeatherApi = createApi({
   reducerPath: 'openWeatherApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'https://api.openweathermap.org/data/2.5' }),
@@ -64,26 +74,25 @@ export const openWeatherApi = createApi({
         }
 
         try {
-          // Fetch current weather
+          // Current weather
           const currentRes = await fetch(
             `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
           );
-          const currentData = await currentRes.json();
+          const currentData: ForecastListItem & { name: string } = await currentRes.json();
 
-          // Fetch 5-day/3-hour forecast
+          // 5-day / 3-hour forecast
           const forecastRes = await fetch(
             `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
           );
-          const forecastData = await forecastRes.json();
+          const forecastData: { list: ForecastListItem[] } = await forecastRes.json();
 
-          // Convert forecast to "hourly" and "daily"
-          const hourly = forecastData.list.slice(0, 8).map((f: any) => ({
+          const hourly = forecastData.list.slice(0, 8).map((f) => ({
             dt: f.dt,
             temp: f.main.temp,
           }));
 
-          const dailyMap: Record<string, { temps: number[]; weather: any[] }> = {};
-          forecastData.list.forEach((f: any) => {
+          const dailyMap: Record<string, { temps: number[]; weather: ForecastListItem['weather'] }> = {};
+          forecastData.list.forEach((f) => {
             const date = new Date(f.dt * 1000).toISOString().split('T')[0];
             if (!dailyMap[date]) {
               dailyMap[date] = { temps: [], weather: [] };
@@ -126,8 +135,8 @@ export const openWeatherApi = createApi({
           };
 
           return { data: result };
-        } catch (err: any) {
-          return { error: { status: 500, data: err.message } };
+        } catch (err) {
+          return { error: { status: 500, data: (err as Error).message } };
         }
       },
     }),
