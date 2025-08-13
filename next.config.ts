@@ -1,12 +1,21 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
     domains: [
-      'siliconcanals.com',
-      'hackernoon.imgix.net',
-      'cdn.example.com', // add any future ones here
+      "openweathermap.org",
+      "hackernoon.imgix.net",
+      "siliconcanals.com",
+      "crypto.com",
+      "assets.coingecko.com",
+      "images.unsplash.com",
+      "cdn.cnn.com",
+      "ichef.bbci.co.uk",
+      "static01.nyt.com"
     ],
+  },
+  eslint: {
+    ignoreDuringBuilds: false,
   },
 };
 
